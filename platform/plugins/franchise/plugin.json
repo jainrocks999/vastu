@@ -1,0 +1,14 @@
+{
+    "id": "botble/franchise",
+    "name": "Franchise",
+    "namespace": "Botble\\Franchise\\",
+    "provider": "Botble\\Franchise\\Providers\\FranchiseServiceProvider",
+    "author": "Botble technologies",
+    "url": "https://botble.com",
+    "version": "2.1.2",
+    "description": "Franchise plugin for Ecommerce site",
+    "minimum_core_version": "7.3.0",
+    "require": [
+        "botble/ecommerce"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "id": "botble/orders",
+    "name": "Orders",
+    "namespace": "Botble\\Orders\\",
+    "provider": "Botble\\Orders\\Providers\\OrderServiceProvider",
+    "author": "Botble Technologies",
+    "url": "https://botble.com",
+    "version": "1.1.2",
+    "description": "Orders manager for Botble CMS",
+    "minimum_core_version": "7.3.0"
+}

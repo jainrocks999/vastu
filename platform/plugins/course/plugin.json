@@ -1,0 +1,11 @@
+{
+    "id": "botble/course",
+    "name": "COURSE",
+    "namespace": "Botble\\Course\\",
+    "provider": "Botble\\Course\\Providers\\CourseServiceProvider",
+    "author": "Botble Technologies",
+    "url": "https://botble.com",
+    "version": "2.0.5",
+    "description": "COURSE",
+    "minimum_core_version": "7.3.0"
+}
