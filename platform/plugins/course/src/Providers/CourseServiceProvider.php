@@ -141,6 +141,15 @@ class CourseServiceProvider extends ServiceProvider
                         ->name('plugins/course::course-reviews.name')
                         ->icon('ti ti-star')
                         ->route('course_review.index')
+                )
+                ->registerItem(
+                    DashboardMenuItem::make()
+                        ->id('cms-plugins-course-trainer.title')
+                        ->priority(4) 
+                        ->parentId('cms-plugins-course')
+                        ->name('Trainer')
+                        ->icon('ti ti-star')
+                        ->route('trainer.index')
                 );
         });
 

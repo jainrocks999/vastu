@@ -60,13 +60,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/wishlist-product', [ApiProductController::class, 'fetchWishlistProduct'])->name('fetchWishlistProduct.api');
     Route::post('/wishlist-product-add', [ApiProductController::class, 'postWishlistProduct'])->name('postWishlistProduct.api');
 
-    //Cart Api
-    Route::get('/cart', [ApiCartController::class, 'getCart'])->name('getCart.api');
-    Route::get('/get-cart-data', [ApiCartController::class, 'getCartData'])->name('getCartData.api');
-    Route::post('/add-to-cart', [ApiCartController::class, 'storeCart'])->name('storeCart.api');
-    Route::post('/update-to-cart', [ApiCartController::class, 'updateCart'])->name('updateCart.api');
-    Route::get('/remove-to cart', [ApiCartController::class, 'removeCartItem'])->name('removeCartItem.api');
-    Route::get('/destroy-to-cart', [ApiCartController::class, 'destroyCart'])->name('destroyCart.api');
+   
 
     //Customer Address
     Route::get('/fetch-customer-address', [ApiAddressController::class, 'fetchAddress'])->name('fetchAddress.api');
@@ -92,7 +86,16 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/fetch-courses-details', [ApiCourseController::class, 'fetchCourseDetails'])->name('fetchCourseDetails.api');
     
     
+    Route::group(['prefix' => 'v1', 'as' => 'api.', 'middleware' => ['jwt.verify']], function () {
+        //Cart Api
+        Route::get('/cart', [ApiCartController::class, 'getCart'])->name('getCart.api');
+        Route::get('/get-cart-data', [ApiCartController::class, 'getCartData'])->name('getCartData.api');
+        Route::post('/add-to-cart', [ApiCartController::class, 'storeCart'])->name('storeCart.api');
+        Route::post('/update-to-cart', [ApiCartController::class, 'updateCart'])->name('updateCart.api');
+        Route::get('/remove-to cart', [ApiCartController::class, 'removeCartItem'])->name('removeCartItem.api');
+        Route::get('/destroy-to-cart', [ApiCartController::class, 'destroyCart'])->name('destroyCart.api');
     
+    });
 
 
 });

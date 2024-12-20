@@ -15,6 +15,12 @@ Route::group(['namespace' => 'Botble\Course\Http\Controllers'], function () {
             ]);
         });
 
+        Route::resource('trainer', TrainerController::class)
+        ->parameters([
+            'trainer' => 'trainer'  // Custom parameter name for the model
+        ]);
+
+        
         Route::group(['prefix' => 'courses', 'as' => 'course.'], function () {
             Route::resource('', 'CourseController')->parameters(['' => 'course']);
             Route::get('get-relations-box/{id?}', [
@@ -23,6 +29,7 @@ Route::group(['namespace' => 'Botble\Course\Http\Controllers'], function () {
                 'permission' => 'courses.settings',
             ]);
 
+         
 
             Route::get('get-list-course-for-select', [
                 'as' => 'get-list-course-for-select',
