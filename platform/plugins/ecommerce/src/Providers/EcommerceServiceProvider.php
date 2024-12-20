@@ -825,15 +825,15 @@ class EcommerceServiceProvider extends ServiceProvider
                 //     'url' => fn () => route('global-option.index'),
                 //     'permissions' => ['global-option.index'],
                 // ])
-                // ->registerItem([
-                //     'id' => 'cms-plugins-product-collections',
-                //     'priority' => 130,
-                //     'parent_id' => 'cms-plugins-ecommerce',
-                //     'name' => 'plugins/ecommerce::product-collections.name',
-                //     'icon' => 'ti ti-album',
-                //     'url' => fn () => route('product-collections.index'),
-                //     'permissions' => ['product-collections.index'],
-                // ])
+                ->registerItem([
+                    'id' => 'cms-plugins-product-collections',
+                    'priority' => 130,
+                    'parent_id' => 'cms-plugins-ecommerce',
+                    'name' => 'plugins/ecommerce::product-collections.name',
+                    'icon' => 'ti ti-album',
+                    'url' => fn () => route('product-collections.index'),
+                    'permissions' => ['product-collections.index'],
+                ])
                 // ->registerItem([
                 //     'id' => 'cms-plugins-product-label',
                 //     'priority' => 140,

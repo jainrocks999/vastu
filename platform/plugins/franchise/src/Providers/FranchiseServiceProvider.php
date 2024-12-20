@@ -114,7 +114,7 @@ class FranchiseServiceProvider extends ServiceProvider
                     'id' => 'cms-plugins-franchise',
                     'priority' => 1,
                     'parent_id' => null,
-                    'name' => 'plugins/franchise::franchise.name',
+                    'name' => 'Franchise',
                     'icon' => 'ti ti-building-store',
                     'url' => '#',
                     'permissions' => ['franchise.index'],

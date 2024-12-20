@@ -13,6 +13,7 @@ class CourseCategory extends BaseModel
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'order',
         'status',

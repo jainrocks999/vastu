@@ -13,9 +13,13 @@ use Botble\Ecommerce\Facades\Cart;
 use Botble\Ecommerce\Facades\EcommerceHelper;
 use Botble\Ecommerce\Facades\ProductCategoryHelper;
 use Botble\Ecommerce\Models\ProductCategory;
+use Botble\SimpleSlider\Models\SimpleSlider;
+use Botble\SimpleSlider\Models\SimpleSliderItem;
 use Botble\Ecommerce\Models\Brand;
 use Botble\Ecommerce\Services\Products\GetProductService;
 use DB;
+use Botble\Ecommerce\Models\Review;
+
 
 class ApiProductController extends Controller
 {
@@ -64,17 +68,21 @@ class ApiProductController extends Controller
                 return response($response, 200);
             }else{
                 $data = [];
-                $products = Product::where('id',$request->product_id)->first();
-                // if(isset($products) && !empty($products)){ 
-                //     $wishlistProducts = Wishlist::where('customer_id',$request->user_id)->where('product_id',$products->id)->first();
-                //     if(isset($wishlistProducts) && !empty($wishlistProducts)){
-                //         $products->is_wishlist = 1;
-                //     }else{
-                //         $products->is_wishlist = 0;
-                //     }
-                //         $data[] = $products;
-                // }
-                 $data[] = $products;
+                $products = Product::with(['productCollections','crossSales'])->where('id',$request->product_id)->first();
+                $reviews = Review::where('product_id',$request->product_id)->get();
+                if(isset($reviews) && !empty($reviews)){
+                    $param = [];
+                    foreach($reviews as $review){
+                     $param['rating'] = $review->star;
+                     $customers = Customer::where('id',$review->customer_id)->first();
+                     $param['customer_name'] = $customers->name;
+                     $param['customer_email'] = $customers->email;
+                     $param['customer_image'] = $customers->avatar;
+                     $dataTwo[] = $param;
+                    }
+                     $products->reviews = isset($dataTwo) ? $dataTwo : [] ;
+                }
+                $data[] = $products;
             }
             $response = ['status'=>200,'data'=>$data,'msg'=>"Fetch single product details."];
             return response($response, 200);
@@ -156,8 +164,11 @@ class ApiProductController extends Controller
     public function remedies(Request $request){
         try{
             $productCategory = ProductCategoryHelper::getActiveTreeCategories();
-            if(isset($productCategory) && !empty($productCategory)){
-                $response = ['status'=>200,'data'=>$productCategory,'msg'=>"Fetch product category list."];
+            $remediesCategoryBanner = SimpleSlider::with('sliderItems')->where('key','remedies-categories-banner')->where('status','published')->get();
+            if(isset($productCategory) && !empty($productCategory) || isset($remediesCategoryBanner) && !empty($remediesCategoryBanner)){
+                $data['remedies_categories_banner'] = $remediesCategoryBanner;
+                $data['remedies_categories'] = $productCategory;
+                $response = ['status'=>200,'data'=>$data,'msg'=>"Fetch product category list."];
             }else{
                 $response = ['status'=>400,'msg'=>"Product category empty."];
             }
@@ -167,8 +178,6 @@ class ApiProductController extends Controller
             return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
         }
     }
-
-    
     
     //product category by product
     public function remediesByProduct(Request $request){
@@ -184,19 +193,22 @@ class ApiProductController extends Controller
                 $productCategorys = ProductCategory::with('products')->where('id',$request->category_id)->get('id');
                 $params = [];
                 $paramProduct = [];
+                $data = [];
                 if(!empty($productCategorys)){
                     foreach($productCategorys as $productCategory){
                         foreach($productCategory->products as $itemsproducts){ 
                             $params['id'] = $itemsproducts->id;
                             $params['category_id'] = $request->category_id;
                             $params['name'] = $itemsproducts->name;
+                            $params['short_description'] = $itemsproducts->short_description;
                             $params['description'] = $itemsproducts->description;
                             $params['content'] = $itemsproducts->content;
                             $params['status'] = $itemsproducts->status;
                             $params['images'] = $itemsproducts->images;
                             $params['price'] = $itemsproducts->price;
                             $params['sale_price'] = $itemsproducts->sale_price;
-                            $params['reviews_avg'] = $itemsproducts->reviews_avg;
+                            $reviews = Review::where('product_id',$itemsproducts->id)->first();
+                            $params['rating'] = isset($reviews) ? $reviews->star : 1 ;
                             $wishlistProducts = Wishlist::where('product_id',$itemsproducts->id)->first();
                             if(isset($wishlistProducts) && !empty($wishlistProducts)){
                                 $params['is_wishlist'] = 1;

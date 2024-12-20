@@ -15,9 +15,6 @@ use Botble\Base\Forms\FieldOptions\TextFieldOption;
 use Botble\Base\Forms\FieldOptions\MultiChecklistFieldOption;
 use Botble\Base\Forms\FieldOptions\RadioFieldOption;
 use Botble\Base\Forms\FieldOptions\MediaImageFieldOption;
-
-use Botble\Base\Forms\Fields\TimePickerField;      // for time picker field
-
 use Botble\Base\Forms\Fields\MediaImageField;
 use Botble\Base\Forms\Fields\MediaImagesField;
 use Botble\Base\Forms\Fields\TextField;
@@ -95,54 +92,6 @@ class CourseForm extends FormAbstract
                 ->label(trans('plugins/course::course.code'))
                 ->required()
             )
-            
-            //  ->add(
-            //      'home_page_layout',
-            //      MultiCheckListField::class,
-            //      MultiChecklistFieldOption::make()
-            //          ->label(trans('plugins/course::course.home_page_layout'))
-            //          ->choices(['1' => 'Home Page Layout'])
-            //          ->required()
-            //  )
-            // short description & start time and end time
-
-            // Adding  start_time field (using TimePickerField)
-             ->add(
-                 'start_time',
-                 TimePickerField::class, 
-                 TextFieldOption::make()   
-                     ->label(trans('plugins/course::course.start_time'))
-                     ->addAttribute('placeholder', 'HH:mm') 
-                     
-                     
-             )
-             ->add(
-                 'end_time',
-                 TimePickerField::class, 
-                 TextFieldOption::make()  
-                     ->label(trans('plugins/course::course.end_time'))
-                     ->addAttribute('placeholder', 'HH:mm') 
-                     
-             )
-
-           
-            
-
-            ->add(
-                'short_description',
-                TextareaField::class,
-                TextareaFieldOption::make()->required()
-            )
-            // Adding video section here 1. course video 2. demo video
-                
-            // ->add(
-            //     'course_video',
-            //     MediaImageField::class, // You can use MediaFileField for video uploads specifically
-            //     MediaImageFieldOption::make()
-            //         ->label(trans('plugins/course::course.course_video'))
-                   
-            // )
-
             ->add(
                 'label1',
                 TextField::class,
@@ -287,16 +236,6 @@ class CourseForm extends FormAbstract
             // )
             ->add('status', SelectField::class, StatusFieldOption::make())
             ->setBreakFieldPoint('status')
-                // checkbox for home page layout
-            ->add(
-                'home_page_layout',
-                MultiCheckListField::class,
-                MultiChecklistFieldOption::make()
-                    ->label(trans('plugins/course::course.home_page_layout'))
-                    ->choices(['1' => 'Home Page Layout'])
-                    ->required()
-            )
-
             ->add(
                 'type',
                 RadioField::class,

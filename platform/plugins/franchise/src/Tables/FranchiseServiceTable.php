@@ -35,8 +35,8 @@ class FranchiseServiceTable extends TableAbstract
                     ->alignStart(),
                     FormattedColumn::make('premium_services')
                     ->title(trans('plugins/franchise::franchise-service.premium_services'))
-                    ->alignStart()
-                    ->getValueUsing(fn (FormattedColumn $column) => $column->getItem()->premium_services == 1 ? 'Yes' : 'No'),
+                    ->getValueUsing(fn (FormattedColumn $column) => $column->getItem()->premium_services == 1 ? 'Yes' : 'No')
+                    ->alignStart(),
                 FormattedColumn::make('short_description')
                     ->title(trans('plugins/franchise::franchise-service.short_description'))
                     ->alignStart(),

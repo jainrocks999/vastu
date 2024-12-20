@@ -9,25 +9,21 @@ use Botble\Base\Forms\FieldOptions\EditorFieldOption;
 use Botble\Base\Forms\FieldOptions\MediaImageFieldOption;
 use Botble\Base\Forms\FieldOptions\NameFieldOption;
 use Botble\Base\Forms\FieldOptions\NumberFieldOption;
-use Botble\Base\Forms\FieldOptions\OnOffFieldOption; //nOffFieldOption
+use Botble\Base\Forms\FieldOptions\OnOffFieldOption;
 use Botble\Base\Forms\FieldOptions\SelectFieldOption;
 use Botble\Base\Forms\FieldOptions\StatusFieldOption;
+use Botble\Base\Forms\FieldOptions\TextareaFieldOption; 
+use Botble\Base\Forms\Fields\TextareaField;
 use Botble\Base\Forms\Fields\EditorField;
 use Botble\Base\Forms\Fields\MediaImageField;
 use Botble\Base\Forms\Fields\MediaImagesField;
-
+use Botble\Base\Forms\Fields\MultiCheckListField;
 use Botble\Base\Forms\Fields\NumberField;
 use Botble\Base\Forms\Fields\OnOffField;
 use Botble\Base\Forms\Fields\SelectField;
 use Botble\Base\Forms\Fields\TagField;
 use Botble\Base\Forms\Fields\TextField;
 use Botble\Base\Forms\Fields\TreeCategoryField;
-use Botble\Base\Forms\FieldOptions\TextareaFieldOption; // for TextareaFieldOption
-use Botble\Base\Forms\Fields\CheckboxField; // for checkbox
-use Botble\Base\Forms\FieldOptions\CheckboxFieldOption;  // for checkbox
-use Botble\Base\Forms\Fields\MultiCheckListField; // for multicheck
-use Botble\Base\Forms\FieldOptions\MultiChecklistFieldOption; // for multicheck
-use Botble\Base\Forms\Fields\TextareaField;
 use Botble\Base\Forms\FormAbstract;
 use Botble\Base\Forms\MetaBox;
 use Botble\Ecommerce\Enums\GlobalOptionEnum;
@@ -85,34 +81,69 @@ class ProductForm extends FormAbstract
             ->setValidatorClass(ProductRequest::class)
             ->setFormOption('files', true)
             ->add('name', TextField::class, NameFieldOption::make()->required())
-            // for short description
-           // ->add('short_desc', TextField::class, NameFieldOption::make()->required())
-          
-        
-           ->add(
-            'short_description',
-            TextareaField::class,
-            TextareaFieldOption::make()->required()
-        )
-       
-        // ->add(
-        //     'home_page_layouts',
-        //     MultiCheckListField::class,
-        //     MultiChecklistFieldOption::make()
-        //         ->label(trans('plugins/ecommerce::products.form.home_page_layouts'))
-        //         ->choices(['1' => 'Home Page Layouts'])
-        //         ->required()
-        // )
-      //  ->add('home_page_layout', SelectField::class, StatusFieldOption::make())
-        
-         ->add(
+            ->add(
                 'description',
                 EditorField::class,
                 EditorFieldOption::make()
                     ->label(trans('core/base::forms.description'))
                     ->placeholder(trans('core/base::forms.description_placeholder'))
             )
-            ->add('content', EditorField::class, ContentFieldOption::make()->allowedShortcodes())
+            ->add(
+                'short_description',
+                TextareaField::class,
+                TextareaFieldOption::make()->required()
+            )
+             ->add(
+                'label1',
+                TextField::class,
+                TextFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.label1'))
+                ->required()
+            )
+            ->add(
+                'description1',
+                EditorField::class,
+                EditorFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.description1'))
+                ->required()
+            )
+            ->add(
+                'label2',
+                TextField::class,
+                TextFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.label2'))
+            )
+            ->add(
+                'description2',
+                EditorField::class,
+                EditorFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.description2'))
+            )
+            ->add(
+                'label3',
+                TextField::class,
+                TextFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.label3'))
+            )
+            ->add(
+                'description3',
+                EditorField::class,
+                EditorFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.description3'))
+            )
+            ->add(
+                'label4',
+                TextField::class,
+                TextFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.description4'))
+            )
+            ->add(
+                'description4',
+                EditorField::class,
+                EditorFieldOption::make()
+                ->label(trans('plugins/ecommerce::products.form.description4'))
+            )
+            // ->add('content', EditorField::class, ContentFieldOption::make()->allowedShortcodes())
             ->add('images[]', MediaImagesField::class, [
                 'label' => trans('plugins/ecommerce::products.form.image'),
                 'values' => $productId ? $this->getModel()->images : [],
@@ -138,7 +169,6 @@ class ProductForm extends FormAbstract
                 'is_featured',
                 OnOffField::class,
                 OnOffFieldOption::make()
-                    //->label(trans('plugins/ecommerce::products.form.home_page_layouts'))
                     ->label(trans('core/base::forms.is_featured'))
                     ->defaultValue(false)
             )
@@ -146,7 +176,6 @@ class ProductForm extends FormAbstract
                 'home_page_layout',
                 OnOffField::class,
                 OnOffFieldOption::make()
-                    //->label(trans('core/base::forms.home_page_layouts'))
                     ->label(trans('plugins/ecommerce::products.form.home_page_layout'))
                     ->defaultValue(false)
             )

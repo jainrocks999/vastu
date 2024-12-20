@@ -47,26 +47,24 @@ class FranchiseServiceController extends BaseController
         $franServices = new FranchiseService();
         $franServices->fill($request->input());
         $franServices->save();
-        $franchiseId = $franServices->id; 
+        // $franchiseId = $franServices->id; 
         return $this
             ->httpResponse()
             ->setPreviousRoute('franchise_services.index')
-            ->setNextRoute('franchise_services.edit', $franchiseId)
+            ->setNextRoute('franchise_services.edit', $franServices)
             ->withCreatedSuccessMessage();
     }
 
-   
     public function edit(FranchiseService $request, $id)
     {
         $franServices = FranchiseService::where('id',$id)->first();
-        $data =  $this->pageTitle(trans('core/base::forms.edit_item', ['name' => $franServices->services_name]));
+        $this->pageTitle(trans('core/base::forms.edit_item', ['name' => $franServices->services_name]));
         return FranchiseServiceForm::createFromModel($franServices)->renderForm();
     }
 
-    public function update(FranchiseService $franchiseService, FranchiseServiceRequest $request)
-    {   
-        $response = FranchiseServiceForm::createFromModel($franchiseService)->setRequest($request)->save();
-        $courseId = $response->getModel()->getKey();
+    public function update(FranchiseService $franServices, FranchiseServiceRequest $request)
+    {
+       $response = FranchiseServiceForm::createFromModel($franServices)->setRequest($request)->save();
         return $this
             ->httpResponse()
             ->setPreviousRoute('franchise_services.index')

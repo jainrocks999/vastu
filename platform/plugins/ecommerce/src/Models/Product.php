@@ -41,10 +41,19 @@ class Product extends BaseModel
     protected $table = 'ec_products';
 
     protected $fillable = [
+        'id',
         'name',
         'short_description',
         'home_page_layout',
         'description',
+        'label1',
+        'description1',
+        'label2',
+        'description2',
+        'label3',
+        'description3',
+        'label4',
+        'description4',
         'content',
         'image', // Featured image
         'images',
