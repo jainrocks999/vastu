@@ -12,6 +12,7 @@ use Botble\Ecommerce\Models\Wishlist;
 use Botble\Ecommerce\Facades\Cart;
 use Botble\Ecommerce\Facades\EcommerceHelper;
 use Botble\Ecommerce\Facades\ProductCategoryHelper;
+use Botble\Ecommerce\Models\ProductCollection;
 use Botble\Ecommerce\Models\ProductCategory;
 use Botble\SimpleSlider\Models\SimpleSlider;
 use Botble\SimpleSlider\Models\SimpleSliderItem;
@@ -67,22 +68,78 @@ class ApiProductController extends Controller
                 $response =['status'=>400,'msg' => $errors[0]];
                 return response($response, 200);
             }else{
-                $data = [];
-                $products = Product::with(['productCollections','crossSales'])->where('id',$request->product_id)->first();
+                $productCollections = ProductCollection::with('products')->get();
+                $products = Product::with(['crossSales'])->where('id',$request->product_id)->first();
                 $reviews = Review::where('product_id',$request->product_id)->get();
-                if(isset($reviews) && !empty($reviews)){
-                    $param = [];
-                    foreach($reviews as $review){
-                     $param['rating'] = $review->star;
-                     $customers = Customer::where('id',$review->customer_id)->first();
-                     $param['customer_name'] = $customers->name;
-                     $param['customer_email'] = $customers->email;
-                     $param['customer_image'] = $customers->avatar;
-                     $dataTwo[] = $param;
+                $productParam = [];
+                if (isset($products) && !empty($products)) {
+                    //Collection product here  
+                    $colParams = [];
+                    $colProduct = [];
+                    if (isset($productCollections)) {
+                        foreach ($productCollections as $productCollection) {
+                            if ($productCollection->slug == 'best-sellers') {
+                            foreach ($productCollection->products as $val) {
+                                    $reviewSingle = Review::where('product_id', $val->id)->first();
+                                    $colParams = [
+                                        'name' => $val->name,
+                                        'price' => $val->price,
+                                        'sale_price' => $val->sale_price,
+                                        'student_price' => $val->student_price,
+                                        'franchise_price' => $val->franchise_price,
+                                        'image' => $val->image,
+                                        'reviews' => $reviewSingle ? $reviewSingle->star : null,
+                                    ];
+                                    $colProduct[] = $colParams;
+                                }
+                            }
+                        }
+                        $products->top_best_seller = $colProduct;
+                    } else {
+                        $products->top_best_seller = $colProduct;
                     }
-                     $products->reviews = isset($dataTwo) ? $dataTwo : [] ;
+                    
+                    // Product multiple images code here 
+                    $imgParam = [];
+                    $dataParam = [];
+                    if(isset($products->images) && !empty($products->images)){ 
+                        foreach($products->images as $imgval){
+                            $imgParam['image'] = $imgval;
+                            $dataParam[] = $imgParam; 
+                        }
+                        $products->image_data = $dataParam; 
+                    }
+                   
+                    //Product lable array set
+                    $labelData = [];
+                    for ($i = 1; $i <= 4; $i++) {
+                        $labelKey = 'label'.$i;
+                        $descriptionKey = 'description'.$i;
+                        $productParam['desc_data_id'] = $i;
+                        $productParam['label'] = $products->$labelKey;
+                        $productParam['description'] = $products->$descriptionKey;
+                        $labelData[] = $productParam;
+                    }
+                    $products->desc_data = $labelData; 
+                  
+                    // Product reviews array set
+                    if(isset($reviews) && !empty($reviews)){
+                        $reviewParam = [];
+                        foreach($reviews as $review){
+                            $customers = Customer::where('id',$review->customer_id)->first();
+                            $reviewParam['customer_image'] = $customers->avatar;
+                            $reviewParam['customer_name'] = $customers->name;
+                            $reviewParam['comment'] = $review->comment;
+                            $reviewParam['rating'] = $review->star;
+                            $reviewData[] = $reviewParam;
+                        }
+                         $products->reviews = isset($reviewData) ? $reviewData : [] ;
+                    }
+                    $data = $products;
+                }else{
+                    $data = [];
                 }
-                $data[] = $products;
+
             }
             $response = ['status'=>200,'data'=>$data,'msg'=>"Fetch single product details."];
             return response($response, 200);
@@ -190,26 +247,29 @@ class ApiProductController extends Controller
                 $response =['status'=>400,'msg' => $errors[0]];
                 return response($response, 200);
             }else{
-                $productCategorys = ProductCategory::with('products')->where('id',$request->category_id)->get('id');
+                $productCategories = ProductCategory::with('products')->where('id',$request->category_id)->get('id');
                 $params = [];
                 $paramProduct = [];
                 $data = [];
-                if(!empty($productCategorys)){
-                    foreach($productCategorys as $productCategory){
-                        foreach($productCategory->products as $itemsproducts){ 
-                            $params['id'] = $itemsproducts->id;
+                if(!empty($productCategories)){
+                    foreach($productCategories as $productCategory){
+                        foreach($productCategory->products as $val){ 
+                            $params['id'] = $val->id;
                             $params['category_id'] = $request->category_id;
-                            $params['name'] = $itemsproducts->name;
-                            $params['short_description'] = $itemsproducts->short_description;
-                            $params['description'] = $itemsproducts->description;
-                            $params['content'] = $itemsproducts->content;
-                            $params['status'] = $itemsproducts->status;
-                            $params['images'] = $itemsproducts->images;
-                            $params['price'] = $itemsproducts->price;
-                            $params['sale_price'] = $itemsproducts->sale_price;
-                            $reviews = Review::where('product_id',$itemsproducts->id)->first();
+                            $params['name'] = $val->name;
+                            $params['short_description'] = $val->short_description;
+                            if(isset($val->images) && !empty($val->images)){ 
+                                $dataParam = [];
+                                foreach($val->images as $imgval){
+                                    $imgParam['image'][0] = $imgval;
+                                }
+                                $params['images'] = $imgParam['image'][0]; 
+                            }
+                            $params['price'] = $val->price;
+                            $params['sale_price'] = $val->sale_price;
+                            $reviews = Review::where('product_id',$val->id)->first();
                             $params['rating'] = isset($reviews) ? $reviews->star : 1 ;
-                            $wishlistProducts = Wishlist::where('product_id',$itemsproducts->id)->first();
+                            $wishlistProducts = Wishlist::where('product_id',$val->id)->first();
                             if(isset($wishlistProducts) && !empty($wishlistProducts)){
                                 $params['is_wishlist'] = 1;
                             }else{
@@ -278,18 +338,18 @@ class ApiProductController extends Controller
                 $paramProduct = [];
                 if(!empty($productBrands)){
                     foreach($productBrands as $productBrand){
-                        foreach($productBrand->products as $itemsproducts){ 
-                            $params['id'] = $itemsproducts->id;
+                        foreach($productBrand->products as $val){ 
+                            $params['id'] = $val->id;
                             $params['brand_id'] = $request->brand_id;
-                            $params['name'] = $itemsproducts->name;
-                            $params['description'] = $itemsproducts->description;
-                            $params['content'] = $itemsproducts->content;
-                            $params['status'] = $itemsproducts->status;
-                            $params['images'] = $itemsproducts->images;
-                            $params['price'] = $itemsproducts->price;
-                            $params['sale_price'] = $itemsproducts->sale_price;
-                            $params['reviews_avg'] = $itemsproducts->reviews_avg;
-                            $wishlistProducts = Wishlist::where('product_id',$itemsproducts->id)->first();
+                            $params['name'] = $val->name;
+                            $params['description'] = $val->description;
+                            $params['content'] = $val->content;
+                            $params['status'] = $val->status;
+                            $params['images'] = $val->images;
+                            $params['price'] = $val->price;
+                            $params['sale_price'] = $val->sale_price;
+                            $params['reviews_avg'] = $val->reviews_avg;
+                            $wishlistProducts = Wishlist::where('product_id',$val->id)->first();
                             if(isset($wishlistProducts) && !empty($wishlistProducts)){
                                 $params['is_wishlist'] = 1;
                             }else{

@@ -115,7 +115,6 @@ class ApiCartController extends BaseController
             }
     
             $maxQuantity = $product->quantity;
-    
             if (! $product->canAddToCart($request->input('qty', 1))) {
                 return $response
                     ->setError()
@@ -185,20 +184,38 @@ class ApiCartController extends BaseController
             }
             $cartItems = OrderHelper::handleAddCart($product, $request);
             $cartItem = Arr::first(array_filter($cartItems, fn ($item) => $item['id'] == $product->id));
-           
             $param = [];
             $param['user_id'] = $request->user_id;
             $param['rowid'] = $cartItem['rowId'];
             $param['product_id'] = $cartItem['id'];
             $param['qty'] = $cartItem['qty'];
             $param['name'] = $cartItem['name'];
-            $param['price'] = $cartItem['price'];
+            if($request->input('user_type') == 'customers'){
+                if(isset($product->sale_price) && $product->sale_price > 0){
+                    $price = $product->sale_price;
+                }else{
+                    $price = $cartItem['price'];
+                }
+            }else if($request->input('user_type') == 'student'){
+                if(isset($product->student_price) && $product->student_price > 0){
+                    $price = $product->student_price;
+                }else{
+                    $price = $cartItem['price'];
+                }
+            }if($request->input('user_type') == 'franchise'){
+                if(isset($product->franchise_price) && $product->franchise_price > 0){
+                    $price = $product->franchise_price;
+                }else{
+                    $price = $cartItem['price'];
+                }
+            }
+            $param['price'] = $price;
+            $subtotal = $price * $param['qty'];
             $param['option'] = json_encode($cartItem['options']);
             $param['taxrate'] = $cartItem['tax'];
-            $param['subtotal'] = $cartItem['subtotal'];
+            $param['subtotal'] = $subtotal;
             $param['created_at'] = date('Y-m-d H:i:s');
             $data = DB::table('ec_cart_temp')->insert($param);
-            
             $response->setMessage(__(
                 'Added product :product to cart successfully!',
                 ['product' => $originalProduct->name ?: $product->name]
@@ -242,10 +259,7 @@ class ApiCartController extends BaseController
                     ->setNextUrl($nextUrl);
             }
             return $response
-                ->setData([
-                    ...$this->getDataForResponse(),
-                    ...$responseData,
-                ]);
+                ->setData(['status'=>200,'msg'=>'Cart item add successfully...']);
         }catch (\Exception $e) {
             // Handle exceptions
             return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
@@ -268,7 +282,6 @@ class ApiCartController extends BaseController
                 $response =['status'=>400,'msg' => $errors[0]];
                 return response($response, 200);
             }
-
             $cartItem = CartTemp::where('user_id',$request->user_id)->where('rowid',$request->rowid)->first(); 
             if(isset($cartItem) && !empty($cartItem)){
                 $cartItem->subtotal = $request->qty * $cartItem->price;
@@ -283,17 +296,21 @@ class ApiCartController extends BaseController
                 $param['option'] = json_decode($cartItem->option);
                 $param['taxrate'] = $cartItem->taxrate;
                 $param['subtotal'] = $cartItem->subtotal;
-                $data[] = $param;
-            
+                $data[] = $param;            
+                $responseData = [
+                    'status' => 200,
+                    'msg' => 'Cart item updated successfully.'
+                ];
+            }else{
+                $responseData = [
+                    'status' => 401,
+                    'msg' => 'Cart item not found.'
+                ];
             }
-            $responseData = [
-                'status' => 200,
-                'data' => $data,
-                'msg' => 'Cart item updated successfully.'
-            ];
             return response($responseData, 200);
         }catch (\Exception $e) {
             // Handle exceptions
+           
             return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
         }
     }

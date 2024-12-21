@@ -980,9 +980,9 @@ class ApiOrderController extends Controller
             'variationInfo.configurableProduct',
             'variationProductAttributes',
         ];
-        if (is_plugin_active('marketplacce')) {
-            $with = array_merge($with, ['store', 'variationInfo.configurableProduct.store']);
-        }
+        // if (is_plugin_active('marketplacce')) {
+        //     $with = array_merge($with, ['store', 'variationInfo.configurableProduct.store']);
+        // }
         
         $products = DB::table('ec_cart_temp')->where('user_id', $request->input('customer_id'))->get();
         $inputProducts = collect($products);

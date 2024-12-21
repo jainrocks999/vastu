@@ -61,23 +61,13 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::post('/wishlist-product-add', [ApiProductController::class, 'postWishlistProduct'])->name('postWishlistProduct.api');
 
    
-
-    //Customer Address
-    Route::get('/fetch-customer-address', [ApiAddressController::class, 'fetchAddress'])->name('fetchAddress.api');
-    Route::post('/create-customer-address', [ApiAddressController::class, 'storeCustomerAddress'])->name('storeCustomerAddress.api');
-    Route::post('/update-customer-address', [ApiAddressController::class, 'updateCustomerAddress'])->name('updateCustomerAddress.api');
-    Route::post('/delete-customer-address', [ApiAddressController::class, 'deleteCustomerAddress'])->name('deleteCustomerAddress.api');
-    Route::get('/reviews-customer-product', [ApiAddressController::class, 'getProductReviews'])->name('getProductReviews.api');
     
     //Shipment 
     Route::get('/fetch-shipment-method', [ApiOrderController::class, 'getAvailableShippingMethods'])->name('getAvailableShippingMethods.api');
     Route::post('/create-shipment', [ApiOrderController::class, 'postCreateShipment'])->name('postCreateShipment.api');
     
     
-    Route::get('/fetch-order', [ApiOrderController::class, 'fetchOrder'])->name('fetchOrder.api');
-    Route::get('/fetch-order-details', [ApiOrderController::class, 'fetchOrderDetails'])->name('fetchOrderDetails.api');
-    Route::post('/create-customer-order', [ApiOrderController::class, 'createOrder'])->name('createOrder.api');
-    Route::post('/cancel-customer-order', [ApiOrderController::class, 'cancelOrder'])->name('cancelOrder.api');
+
     
     
     //Franchise Lists
@@ -85,7 +75,8 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/fetch-courses', [ApiCourseController::class, 'fetchCourse'])->name('fetchCourse.api');
     Route::get('/fetch-courses-details', [ApiCourseController::class, 'fetchCourseDetails'])->name('fetchCourseDetails.api');
     
-    
+});
+
     Route::group(['prefix' => 'v1', 'as' => 'api.', 'middleware' => ['jwt.verify']], function () {
         //Cart Api
         Route::get('/cart', [ApiCartController::class, 'getCart'])->name('getCart.api');
@@ -94,8 +85,17 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
         Route::post('/update-to-cart', [ApiCartController::class, 'updateCart'])->name('updateCart.api');
         Route::get('/remove-to cart', [ApiCartController::class, 'removeCartItem'])->name('removeCartItem.api');
         Route::get('/destroy-to-cart', [ApiCartController::class, 'destroyCart'])->name('destroyCart.api');
-    
+
+        //Customer Address
+        Route::get('/fetch-customer-address', [ApiAddressController::class, 'fetchAddress'])->name('fetchAddress.api');
+        Route::post('/create-customer-address', [ApiAddressController::class, 'storeCustomerAddress'])->name('storeCustomerAddress.api');
+        Route::post('/update-customer-address', [ApiAddressController::class, 'updateCustomerAddress'])->name('updateCustomerAddress.api');
+        Route::post('/delete-customer-address', [ApiAddressController::class, 'deleteCustomerAddress'])->name('deleteCustomerAddress.api');
+        Route::get('/reviews-customer-product', [ApiAddressController::class, 'getProductReviews'])->name('getProductReviews.api');
+
+        //Order 
+        Route::get('/fetch-order', [ApiOrderController::class, 'fetchOrder'])->name('fetchOrder.api');
+        Route::get('/fetch-order-details', [ApiOrderController::class, 'fetchOrderDetails'])->name('fetchOrderDetails.api');
+        Route::post('/create-customer-order', [ApiOrderController::class, 'createOrder'])->name('createOrder.api');
+        Route::post('/cancel-customer-order', [ApiOrderController::class, 'cancelOrder'])->name('cancelOrder.api');
     });
-
-
-});
