@@ -518,10 +518,11 @@ class OrderHelper
 
     public function handleAddCart(Product $product, Request $request): array
     {
+        dd($product->status);
         if ($product->status != BaseStatusEnum::PUBLISHED) {
             throw new ProductIsNotActivatedYetException();
         }
-
+        dd('dfkdflkdfklkdfl');
         $parentProduct = $product->original_product;
 
         $image = $product->image ?: $parentProduct->image;

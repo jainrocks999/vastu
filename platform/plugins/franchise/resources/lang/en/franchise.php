@@ -1,14 +1,17 @@
 <?php
 
 return [
-    'name' => 'Franchise Name',
-    'franchise_name' => 'Franchise Name',
+    'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
+    'view' => 'Franchise View',
+    'name' => 'Franchise',
+    'franchise_name' => 'Franchise Name',    //
     'create' => 'Franchise Request Create',
-    'email' => 'Franchise Email',
-    'phone' => 'Franchise Phone',
+    'email' => 'Franchise Email',  //
+    'phone' => 'Franchise Phone',//
     'phone_placeholder' => 'phone no',
-    'dob' => 'Date Of Birth',
-    'avatar' => 'Images',
+    'dob' => 'Date Of Birth',//
+    'avatar' => 'Avatar',
     'gender' => 'Gender',
     'current_location' => 'Current Location',
     'country' => 'Country',

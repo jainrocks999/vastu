@@ -18,6 +18,10 @@ use Botble\Table\HeaderActions\CreateHeaderAction;
 use Illuminate\Database\Eloquent\Builder;
 use Botble\Table\Columns\ImageColumn;
 
+use Illuminate\Contracts\View\View;
+
+use Botble\Table\Actions\Action;
+
 
 class FranchiseTable extends TableAbstract
 {
@@ -67,6 +71,14 @@ class FranchiseTable extends TableAbstract
             ])
             ->addHeaderAction(CreateHeaderAction::make()->route('franchise.create'))
             ->addActions([
+              
+                    Action::make('view')
+                        ->route('franchise.show')
+                        ->permission('franchise.index')
+                        ->label(__('View'))
+                        ->icon('ti ti-eye'),
+            
+                
                 EditAction::make()->route('franchise.edit'),
                 DeleteAction::make()->route('franchise.destroy'),
             ])

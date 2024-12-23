@@ -81,9 +81,9 @@ class ApiOrderController extends Controller
                 return response($response, 200);
             }else{
                 $data = [];
-                $orders = Order::query()
+                $orders = Order::query()->with('products')
                             ->where('user_id', $request->user_id)
-                            ->paginate(10);
+                            ->get();
             }
             $response = ['status'=>200,'data'=>$orders,'msg'=>"Fetch Order list."];
             return response($response, 200);
@@ -294,7 +294,7 @@ class ApiOrderController extends Controller
                 ) 
                 OrderHelper::setOrderCompleted($order['id'], $request, $userId);
             }
-            $response = ['status'=>200,'msg'=>"Order update successfully..."];
+            $response = ['status'=>200,'msg'=>"Order created successfully..."];
             return response($response, 200);
         } catch (\Exception $e) {
             dd($e);
@@ -302,6 +302,7 @@ class ApiOrderController extends Controller
             return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
         }
     }
+
 
     //Order cencel
     public function cancelOrder(Request $request)
@@ -756,17 +757,43 @@ class ApiOrderController extends Controller
 
     public function postApplyCoupon(ApplyCouponRequest $request, HandleApplyCouponService $handleApplyCouponService)
     {
-        $result = $handleApplyCouponService->applyCouponWhenCreatingOrderFromAdmin($request);
 
-        if ($result['error']) {
+        try{
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|integer|max:255', 
+                'coupon_code' => 'required|string', 
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                $response =['status'=>400,'msg' => $errors[0]];
+                return response($response, 200);
+            }else{
+                if ($couponCode = trim($request->input('coupon_code'))) {
+                    $couponData = $this->handleApplyCouponService->applyCouponWhenCreatingOrderFromAdmin($request, $cartData);
+                    if (Arr::get($couponData, 'error')) {
+                        $isError = true;
+                        $message[] = Arr::get($couponData, 'message');
+                    } else {
+                        if (Arr::get($couponData, 'data.is_free_shipping')) {
+                            $shippingAmount = 0;
+                        } else {
+                            $discountAmount = Arr::get($couponData, 'data.discount_amount');
+                            if (! $discountAmount) {
+                                $isError = true;
+                                $message[] = __('Coupon code is not valid or does not apply to the products');
+                            }
+                        }
+                    }
+                } 
+                if ($result['error']) {
+                    return $this
+                        ->httpResponse()
+                        ->setError()
+                        ->withInput()
+                        ->setMessage($result['message']);
+                }
+            }
             return $this
-                ->httpResponse()
-                ->setError()
-                ->withInput()
-                ->setMessage($result['message']);
-        }
-
-        return $this
             ->httpResponse()
             ->setData(Arr::get($result, 'data', []))
             ->setMessage(
@@ -775,7 +802,12 @@ class ApiOrderController extends Controller
                     ['code' => $request->input('coupon_code')]
                 )
             );
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
+        }
     }
+    
 
     // public function getReorder(Request $request)
     // {
@@ -1068,7 +1100,6 @@ class ApiOrderController extends Controller
                     $message[] = __('Please select product options!');
                 } else {
                     $requiredOptions = $product->original_product->options->where('required', true);
-
                     foreach ($requiredOptions as $requiredOption) {
                         if (! Arr::get($inputOptions, $requiredOption->id . '.values')) {
                             $isError = true;
@@ -1081,13 +1112,13 @@ class ApiOrderController extends Controller
                 }
             }
 
-            if (is_plugin_active('marketplace')) {
-                $store = $product->original_product->store;
-                if ($store->id) {
-                    $productName .= ' (' . $store->name . ')';
-                }
-                $stores[] = $store;
-            }
+            // if (is_plugin_active('marketplace')) {
+            //     $store = $product->original_product->store;
+            //     if ($store->id) {
+            //         $productName .= ' (' . $store->name . ')';
+            //     }
+            //     $stores[] = $store;
+            // }
 
             $parentProduct = $product->original_product;
 
@@ -1132,12 +1163,12 @@ class ApiOrderController extends Controller
             }
         }
 
-        if (is_plugin_active('marketplace')) {
-            if (count(array_unique(array_filter($stores->pluck('id')->all()))) > 1) {
-                $isError = true;
-                $message[] = trans('plugins/marketplace::order.products_are_from_different_vendors');
-            }
-        }
+        // if (is_plugin_active('marketplace')) {
+        //     if (count(array_unique(array_filter($stores->pluck('id')->all()))) > 1) {
+        //         $isError = true;
+        //         $message[] = trans('plugins/marketplace::order.products_are_from_different_vendors');
+        //     }
+        // }
 
         $subAmount = Cart::rawSubTotalByItems($cartItems);
         $taxAmount = Cart::rawTaxByItems($cartItems);
@@ -1159,14 +1190,14 @@ class ApiOrderController extends Controller
         if ($isAvailableShipping) {
             $origin = EcommerceHelper::getOriginAddress();
 
-            if (is_plugin_active('marketplace')) {
-                if ($stores->count() && ($store = $stores->first()) && $store->id) {
-                    $origin = Arr::only($store->toArray(), $addressKeys);
-                    if (! EcommerceHelper::isUsingInMultipleCountries()) {
-                        $origin['country'] = EcommerceHelper::getFirstCountryId();
-                    }
-                }
-            }
+            // if (is_plugin_active('marketplace')) {
+            //     if ($stores->count() && ($store = $stores->first()) && $store->id) {
+            //         $origin = Arr::only($store->toArray(), $addressKeys);
+            //         if (! EcommerceHelper::isUsingInMultipleCountries()) {
+            //             $origin['country'] = EcommerceHelper::getFirstCountryId();
+            //         }
+            //     }
+            // }
 
             $items = [];
             foreach ($productItems as $product) {

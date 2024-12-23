@@ -40,9 +40,6 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/home-slider', [ApiMasterController::class, 'homeSlider'])->name('home-slider.api');
     Route::get('/draw-menu', [ApiMasterController::class, 'drawMenu'])->name('draw-menu.api');
 
-
-
-
     Route::get('/profile-list', [ApiAuthController::class, 'userProfileList'])->name('profile-list.api');
     Route::post('/profile-update', [ApiAuthController::class, 'profileUpdate'])->name('profile-update.api');
 
@@ -50,6 +47,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/products-search', [ApiProductController::class, 'ajaxSearchProducts'])->name('ajaxSearchProducts.api');
     Route::get('/remedies', [ApiProductController::class, 'remedies'])->name('remedies.api');
     Route::get('/remedies-by-product', [ApiProductController::class, 'remediesByProduct'])->name('remediesByProduct.api');
+    Route::get('/products-collection', [ApiProductController::class, 'fetchProductCollection'])->name('fetchProductCollection.api');
      
     Route::get('/product-brand', [ApiProductController::class, 'productBrand'])->name('product-brand.api');
     Route::get('/brand-by-product', [ApiProductController::class, 'brandByProduct'])->name('brandByProduct.api');
@@ -59,16 +57,10 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::get('/fetch-single-product', [ApiProductController::class, 'fetchSingleProduct'])->name('fetchSingleProduct.api');
     Route::get('/wishlist-product', [ApiProductController::class, 'fetchWishlistProduct'])->name('fetchWishlistProduct.api');
     Route::post('/wishlist-product-add', [ApiProductController::class, 'postWishlistProduct'])->name('postWishlistProduct.api');
-
-   
-    
+ 
     //Shipment 
     Route::get('/fetch-shipment-method', [ApiOrderController::class, 'getAvailableShippingMethods'])->name('getAvailableShippingMethods.api');
     Route::post('/create-shipment', [ApiOrderController::class, 'postCreateShipment'])->name('postCreateShipment.api');
-    
-    
-
-    
     
     //Franchise Lists
     Route::get('/fetch-franchise-services', [ApiFranchiseController::class, 'fetchFranchiseServices'])->name('fetchFranchiseServices.api');

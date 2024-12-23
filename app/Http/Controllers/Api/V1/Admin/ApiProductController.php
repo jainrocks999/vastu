@@ -59,6 +59,7 @@ class ApiProductController extends Controller
 
     //Product list Api
     public function fetchSingleProduct(Request $request){
+        
         try{
             $validator = Validator::make($request->all(), [
                 'product_id' => 'required|integer|max:255', 
@@ -76,10 +77,11 @@ class ApiProductController extends Controller
                     //Collection product here  
                     $colParams = [];
                     $colProduct = [];
+                    $colProductTwo = [];
                     if (isset($productCollections)) {
                         foreach ($productCollections as $productCollection) {
                             if ($productCollection->slug == 'best-sellers') {
-                            foreach ($productCollection->products as $val) {
+                                foreach ($productCollection->products as $val) {
                                     $reviewSingle = Review::where('product_id', $val->id)->first();
                                     $colParams = [
                                         'name' => $val->name,
@@ -93,10 +95,29 @@ class ApiProductController extends Controller
                                     $colProduct[] = $colParams;
                                 }
                             }
+                            $products->top_best_seller = $colProduct;
+
+                            // // you may like also
+                            // if ($productCollection->slug == 'you-may-also-like') {
+                            //     foreach ($productCollection->products as $val) {
+                            //         $reviewSingle = Review::where('product_id', $val->id)->first();
+                            //         $colParams = [
+                            //             'name' => $val->name,
+                            //             'price' => $val->price,
+                            //             'sale_price' => $val->sale_price,
+                            //             'student_price' => $val->student_price,
+                            //             'franchise_price' => $val->franchise_price,
+                            //             'image' => $val->image,
+                            //             'reviews' => $reviewSingle ? $reviewSingle->star : null,
+                            //         ];
+                            //         $colProductTwo[] = $colParams;
+                            //     }
+                            // }
+                            // $products->you_may_also_like = $colProductTwo;
                         }
-                        $products->top_best_seller = $colProduct;
                     } else {
                         $products->top_best_seller = $colProduct;
+                        $products->you_may_also_like = $colProductTwo;
                     }
                     
                     // Product multiple images code here 
@@ -108,6 +129,8 @@ class ApiProductController extends Controller
                             $dataParam[] = $imgParam; 
                         }
                         $products->image_data = $dataParam; 
+                    }else{
+                        $products->image_data = []; 
                     }
                    
                     //Product lable array set
@@ -140,6 +163,28 @@ class ApiProductController extends Controller
                     $data = [];
                 }
 
+            }
+            $response = ['status'=>200,'data'=>$data,'msg'=>"Fetch single product details."];
+            return response($response, 200);
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
+        }
+    }
+
+
+    public function fetchProductCollection(Request $request){
+        try{
+            $productCollections = ProductCollection::with(['products'])->where('slug','you-may-also-like')->first();
+            if (isset($productCollections) && !empty($productCollections)) {
+                $data = $productCollections->products;
+                foreach($productCollections->products as $val){
+                    $reviewSingle = Review::where('product_id', $val->id)->first();
+                    $val->rating =  $reviewSingle ? $reviewSingle->star : 0;
+                }
+                $data = $productCollections->products;
+            }else{
+                $data = '';
             }
             $response = ['status'=>200,'data'=>$data,'msg'=>"Fetch single product details."];
             return response($response, 200);
@@ -263,18 +308,18 @@ class ApiProductController extends Controller
                                 foreach($val->images as $imgval){
                                     $imgParam['image'][0] = $imgval;
                                 }
-                                $params['images'] = $imgParam['image'][0]; 
+                                $params['image'] = $imgParam['image'][0]; 
                             }
                             $params['price'] = $val->price;
                             $params['sale_price'] = $val->sale_price;
                             $reviews = Review::where('product_id',$val->id)->first();
                             $params['rating'] = isset($reviews) ? $reviews->star : 1 ;
                             $wishlistProducts = Wishlist::where('product_id',$val->id)->first();
-                            if(isset($wishlistProducts) && !empty($wishlistProducts)){
-                                $params['is_wishlist'] = 1;
-                            }else{
-                                $params['is_wishlist'] = 0;
-                            }
+                            // if(isset($wishlistProducts) && !empty($wishlistProducts)){
+                            //     $params['is_wishlist'] = 1;
+                            // }else{
+                            //     $params['is_wishlist'] = 0;
+                            // }
                             $paramProduct[] = $params;
                         }
                     }

@@ -4,14 +4,26 @@ use Botble\Base\Facades\AdminHelper;
 use Botble\Franchise\Http\Controllers\VendorBlockedController;
 use Botble\Franchise\Http\Controllers\WithdrawalInvoiceController;
 use Illuminate\Support\Facades\Route;
+use Botble\Franchise\Http\Controllers\FranchiseController;
+
 
 AdminHelper::registerRoutes(function () {
     Route::group(['namespace' => 'Botble\Franchise\Http\Controllers'], function () {
         
         Route::group(['prefix' => 'franchise', 'as' => 'franchise.'], function () {
             Route::resource('', 'FranchiseController')->parameters(['' => 'franchise']);
-        });
 
+          
+             
+           Route::get('{id}', [
+            'as' => 'show',
+            'uses' => 'FranchiseController@show',
+            'permission' => 'franchise.index',
+        ]);
+        });
+       
+      Route::put('franchise/{id}/update-status', [FranchiseController::class, 'updateStatus'])->name('franchise.update-status');
+     
         Route::group(['prefix' => 'franchise-services', 'as' => 'franchise_services.'], function () {
             Route::resource('', 'FranchiseServiceController')->parameters(['' => 'franchise_services']);
         });

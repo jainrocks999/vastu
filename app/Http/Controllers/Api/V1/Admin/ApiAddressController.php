@@ -27,8 +27,6 @@ class ApiAddressController extends Controller
                 $data = [];
                 $addresses = Address::query()
                             ->where('customer_id', $request->user_id)
-                            ->orderByDesc('is_default')
-                            ->orderByDesc('created_at')
                             ->paginate(10);
             }
             $response = ['status'=>200,'data'=>$addresses,'msg'=>"Fetch Address list."];
@@ -58,6 +56,8 @@ class ApiAddressController extends Controller
                 $response =['status'=>400,'msg' => $errors[0]];
                 return response($response, 200);
             }else{
+
+                $addresses = Address::where('customer_id', $request->user_id)->where('is_default',1)->first();
                 $address = new Address();
                 $address->name = $request->name;
                 $address->email = $request->email;
@@ -66,8 +66,13 @@ class ApiAddressController extends Controller
                 $address->state = $request->state;
                 $address->city = $request->city;
                 $address->address = $request->address;
+                $address->apartment = $request->apartment;
                 $address->customer_id = $request->user_id;
-                $address->is_default = $request->is_default;
+                if(isset($addresses) && $addresses->is_default == 1){
+                    $address->is_default = 0;
+                }else{
+                    $address->is_default = 1;
+                }
                 $address->created_at = date('Y-m-d H:i:s');
                 $address->zip_code = $request->zip_code;
                 $address->save();

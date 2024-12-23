@@ -16,6 +16,8 @@ use Botble\Franchise\Traits\FranchiseActionsTrait;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Botble\Franchise\Forms\FranchiseShow;
+use Illuminate\Http\Request;
 
 
 class FranchiseController extends BaseController
@@ -94,5 +96,34 @@ class FranchiseController extends BaseController
     }
 
 
+    public function show($id)
+    {
+        $franchise = Franchise::where('id',$id)->first();
+        $customerId = $franchise->customer_id;
+        $customers = Customer::where('id',$customerId)->first();
+        if($customers != null){
+            $customerdatas = $customers;
+        }else{
+            $customerdatas = '';
+        }
+        $this->pageTitle(trans('plugins/franchise::franchise.view', ['name' => $franchise->franchise_name ]));
+        return view('plugins/franchise::franchise.show', compact('franchise','customerdatas'));
+    }
+
+
+
+    public function updateStatus(Request $request)
+    {
+    
+        $franchise = Franchise::findOrFail($request->franchise_id);
+        $franchise->application_status = $request->status;
+        $franchise->save();
+        return redirect()->route('franchise.show', $franchise->getKey())
+            ->with('success', 'Status updated successfully!');
+    }
+
+
+
     
 }
+

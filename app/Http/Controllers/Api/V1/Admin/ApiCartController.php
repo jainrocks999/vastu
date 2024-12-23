@@ -49,15 +49,20 @@ class ApiCartController extends BaseController
                 $data = [];
                 $param = [];
                 foreach($cartItems as $cartItem){
+                    $products = Product::with('tax')->where('id',$cartItem->product_id)->where('status','published')->first();
                     $param['user_id'] = $cartItem->user_id;
                     $param['rowid'] = $cartItem->rowid;
                     $param['product_id'] = $cartItem->product_id;
                     $param['qty'] = $cartItem->qty;
                     $param['name'] = $cartItem->name;
-                    $param['price'] = $cartItem->price;
+                    $param['price'] = $products->price;
+                    $param['sale_price'] = $products->sale_price != null ? $products->sale_price : 0 ;
+                    $param['student_price'] = $products->student_price != null ? $products->student_price : 0 ;
+                    $param['franchise_price'] = $products->franchise_price != null ? $products->franchise_price : 0 ;
                     $param['option'] = json_decode($cartItem->option);
-                    $param['taxrate'] = $cartItem->taxrate;
-                    $param['subtotal'] = $cartItem->subtotal;
+                    $param['tax_amount'] = $cartItem->taxrate;
+                    // $param['subtotal'] = $cartItem->subtotal;
+                    $param['total_amount'] = $cartItem->subtotal + $cartItem->taxrate;
                     $data[] = $param;
                 }
                 $response = ['status'=>200,'data' => $data,'msg'=>"cart items list."];
@@ -89,20 +94,27 @@ class ApiCartController extends BaseController
                 return response($response, 200);
             }
 
+            $cartItems = CartTemp::where('user_id',$request->user_id)->where('product_id',$request->id)->first();
+            if(isset($cartItems) && !empty($cartItems->product_id)){
+                $response = ['status'=>201,'msg' => 'Cart item already exist.'];
+                return response($response, 200);
+            }
+
             $response = $this->httpResponse();
             $product = Product::query()->find($request->input('id'));
-            if (! $product) {
+            
+            if (!$product) {
                 return $response
                     ->setError()
                     ->setMessage(__('This product is out of stock or not exists!'));
             }
-    
-            if ($product->variations->count() > 0 && ! $product->is_variation) {
-                $product = $product->defaultVariation->product;
-            }
+          //  dd($product->defaultVariation->product);
+            // if ($product->variations->count() > 0 && !$product->is_variation) {
+            //     $product = $product->defaultVariation->product;
+            // }
+           
     
             $originalProduct = $product->original_product;
-    
             if ($product->isOutOfStock()) {
                 return $response
                     ->setError()
@@ -181,7 +193,7 @@ class ApiCartController extends BaseController
                         'Product :product is out of stock!',
                         ['product' => $originalProduct->name ?: $product->name]
                     ));
-            }
+            }  
             $cartItems = OrderHelper::handleAddCart($product, $request);
             $cartItem = Arr::first(array_filter($cartItems, fn ($item) => $item['id'] == $product->id));
             $param = [];
@@ -370,6 +382,7 @@ class ApiCartController extends BaseController
             }
             return response($results, 200);
         }catch (\Exception $e) {
+            dd($e);
             // Handle exceptions
             return response()->json(['status' => 500, 'msg' => 'Something went wrong.'], 500);
         }
