@@ -11,15 +11,16 @@ AdminHelper::registerRoutes(function () {
     Route::group(['namespace' => 'Botble\Franchise\Http\Controllers'], function () {
         
         Route::group(['prefix' => 'franchise', 'as' => 'franchise.'], function () {
-            Route::resource('', 'FranchiseController')->parameters(['' => 'franchise']);
-
-          
-             
-           Route::get('{id}', [
+            Route::resource('', 'FranchiseController')->parameters(['' => 'franchise']);  
+            Route::get('{id}', [
             'as' => 'show',
             'uses' => 'FranchiseController@show',
             'permission' => 'franchise.index',
-        ]);
+            ]);
+        });
+
+        Route::group(['prefix' => 'franchise-manage', 'as' => 'franchise_manage.'], function () {
+            Route::resource('', 'FranchiseManageController')->parameters(['' => 'franchise_manage']);
         });
        
       Route::put('franchise/{id}/update-status', [FranchiseController::class, 'updateStatus'])->name('franchise.update-status');

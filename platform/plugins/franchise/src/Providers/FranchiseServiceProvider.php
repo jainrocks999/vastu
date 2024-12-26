@@ -136,6 +136,14 @@ class FranchiseServiceProvider extends ServiceProvider
                     'icon' =>'ti ti-users',
                     'url' => fn () => route('franchise.index'),
                     'permissions' => ['franchise.index'],
+                ])  ->registerItem([
+                    'id' => 'cms-plugins-franchise-manage',
+                    'priority' => 4,
+                    'parent_id' => 'cms-plugins-franchise',
+                    'name' => 'Franchise Manage',
+                    'icon' =>'ti ti-dashboard',
+                    'url' => fn () => route('franchise_manage.index'),
+                    
                 ]);
                 // ->when(
                 //     FranchiseHelper::getSetting('verify_vendor', 1),
